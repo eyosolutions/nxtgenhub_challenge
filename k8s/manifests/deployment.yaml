@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nxtgen-webserver
+  # labels:
+  #   app: frontend
+  namespace: nxtgenhub
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: nxtgen-webserver
+  template:
+    metadata:
+      labels:
+        app: nxtgen-webserver
+    spec:
+      containers:
+        - name: nxtgen-webserver
+          image: eyodevops/nxtgenhub-webserver:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"

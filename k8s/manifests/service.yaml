@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nxtgen-webserver-svc
+  namespace: nxtgen-webserver #staging; dev
+spec:
+  selector:
+    app: nxtgenhub
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
