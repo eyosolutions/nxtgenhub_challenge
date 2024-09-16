@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nxtgen-webserver-svc
-  namespace: nxtgen-webserver #staging; dev
+  namespace: nxtgenhub
 spec:
   selector:
-    app: nxtgenhub
+    app: nxtgen-webserver
   ports:
     - protocol: TCP
       port: 80

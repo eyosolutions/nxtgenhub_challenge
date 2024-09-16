@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx # traefik ingress controller preferred
   rules:
-    - host: devops.synkcodes.com
+    - host: devops.eyo-techsolutions.com
       http:
         paths:
           - path: "/"
