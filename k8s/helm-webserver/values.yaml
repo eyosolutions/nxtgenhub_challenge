@@ -1,0 +1,3 @@
+name: nxtgen-webserver
+namespace: nxtgenhub-helm
+replicasCount: 1

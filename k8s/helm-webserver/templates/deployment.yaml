@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  # labels:
+  #   app: frontend
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicasCount }}
+  selector:
+    matchLabels:
+      app: nxtgen-webserver
+  template:
+    metadata:
+      labels:
+        app: nxtgen-webserver
+    spec:
+      containers:
+        - name: nxtgen-webserver
+          image: eyodevops/nxtgenhub-webserver:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"

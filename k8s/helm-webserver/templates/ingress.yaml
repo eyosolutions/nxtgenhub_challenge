@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}-ingress 
+  namespace: {{ .Values.namespace }}
+  # annotations:
+  #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  #   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  #   cert-manager.io/cluster-issuer: "letsencrypt-staging"
+spec:
+  # ingressClassName: nginx # traefik ingress controller preferred
+  rules:
+    - host: helm.eyo-techsolutions.com
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: "nxtgen-webserver-svc"
+                port:
+                  number: 80
