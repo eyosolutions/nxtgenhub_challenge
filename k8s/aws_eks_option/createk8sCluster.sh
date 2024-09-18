@@ -19,7 +19,7 @@ DESIRED_SIZE=2
 
 EKS_TRUST_FILE="file://trust.json"
 NODE_GROUP_TRUST_FILE="file://eks-nodegroup-trust-policy.json"
-ACCOUNT_ID=837538001765
+ACCOUNT_ID=12345678
 
 # End of Variable Declarations
 
