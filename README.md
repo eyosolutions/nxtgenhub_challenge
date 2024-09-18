@@ -23,6 +23,8 @@ The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-e
 - [Docker](#docker)
 - [Kubernetes Setup](#kubernetes-setup)
 - [Helm Chart](#helm-chart)
+- [Ingress/Ingress Controller](#ingress)
+- [Certificates Management](#certificates-tls)
 - [Monitoring, Logging, and Alerting](#monitoring-logging-and-alerting)
 - [CI/CD Pipeline](#ci-cd-pipeline)
 - [Contributing](#contributing)
@@ -36,10 +38,10 @@ The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-e
 - **Docker** (for containerization)
 - **Kubernetes** (e.g., Docker Desktop, AWS EKS, or AKS)
 - **Helm** (for managing Kubernetes resources)
-- **Jenkins or GitHub Actions** (for CI/CD)
-- **ArgoCD** (for GitOps-style deployments)
 - **Cert-manager** (for automating HTTPS certificates)
 - **Prometheus, Grafana, Alertmanager** (for monitoring and alerting)
+- **Jenkins or GitHub Actions** (for CI/CD)
+- **ArgoCD** (for GitOps-style deployments)
 
 ### Quickstart:
 
@@ -56,7 +58,13 @@ The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-e
    docker build -t your-dockerhub-username/nxtgenhub-webserver:v1 .
    ```
 
-3. Push the image to Docker Hub:
+3. Login to Docker Hub from the cli if not done already:
+
+   ```bash
+   docker login
+   ```
+
+4. Push the image to Docker Hub:
    ```bash
    docker push your-dockerhub-username/nxtgenhub-webserver:v1
    ```
@@ -92,18 +100,39 @@ Navigate to `http://localhost` to view the web page.
 
 ### Deployment on Docker Desktop:
 
-1. Create Kubernetes manifests (`namespace.yaml`, `deployment.yaml`, `service.yaml`, `ingress.yaml`, `ingress-controller.yaml`).
+Create a kubernetes cluster by doing the following:
+
+- Install Docker Desktop following the instructions on their official website for your local machine.
+- Open Docker Desktop, go to settings, click and enable kubernetes, and click on "Apply & restart".
+
+<!-- 1. Create Kubernetes manifests (`namespace.yaml`, `deployment.yaml`, `service.yaml`, `ingress.yaml`, `ingress-controller.yaml`).
 2. Apply the manifests:
    ```bash
    kubectl apply -f k8s-manifests/
-   ```
+   ``` -->
 
 ### Deployment on EKS:
 
-1. Create an EKS cluster using `eksctl` or the AWS console.
-2. Deploy using Helm:
+Create a kubernetes cluster on AWS using EKS by doing the following:
+
+1. Create an AWS account if you do not have already. Setup IAM user and create access keys for the IAM user.
+2. Install AWS CLI on your local machine and configure it with the access keys and default region.
+3. While still in the root directory of this project, navigate and edit the `createk8sCluster.sh` script.
+
    ```bash
-   helm install nxtgenhub ./helm-chart
+   cd k8s/aws_eks_option/
+   ```
+
+4. Edit the script with your own details (cluster name, subnet_IDs, securityGroup_ID, etc) and run the script.
+
+   ```bash
+   ./createk8sCluster.sh
+   ```
+
+5. Once done with the project, the cluster can be deleted by running the `deleteEKSCluster.sh` script.
+
+   ```bash
+   ./deleteEKSCluster.sh
    ```
 
 ### Ingress with HTTPS:
@@ -116,18 +145,46 @@ Navigate to `http://localhost` to view the web page.
 
 ---
 
-## Helm Chart
+## Helm Chart/ Manifests
 
-The Helm chart for the application automates the deployment of the web server, services, and ingress. The Ingress controller is added as a Helm dependency.
+The Helm chart for the application automates the deployment of the web server, services, and ingress. The Ingress controller is added as a Helm dependency. There is also a separate `manifests` directoy for the deployment of resources using `kubectl`.
 
-- Install the Helm chart:
-  ```bash
-  helm install nxtgenhub ./helm-chart
-  ```
-- To upgrade the application:
-  ```bash
-  helm upgrade nxtgenhub ./helm-chart
-  ```
+### Using kubectl
+
+1. Replace the namespace with your namespace or delete `-n <namespace>` to use the default.
+
+   ```bash
+   cd nxtgenhub_challenge/k8s/manifests/
+
+   kubectl appply -f . -n <namespace>
+   ```
+
+2. Install the ingress controller of your choice. Ingress-nginx was used but traefik ingress controller is also an option.
+
+   ```
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/cloud/deploy.yaml
+   ```
+
+3. For EKS, ensure the hostname in the ingress resources is valid and configured in AWS Route53 and the record points to the loadbalancer. Access the application using the hostname.
+
+4. For Docker Desktop, add the hostname in the ingress resource to the /etc/hosts on linux or C:\Windows\system32\drivers\etc\hosts on Windows. Access the application from the browser using the hostname.
+
+### Using Helm Chart
+
+1. Install the Helm chart. Note that the ingress controller is added to the chart as a dependency. Install the chart onto the cluster. Replace the namespace with your namespace or delete `-n <namespace>` to use the default.
+
+   ```bash
+   cd nxtgenhub_challenge/k8s/helm-webserver/
+   helm dependency update .
+   helm upgrade --install webserver . -n <namespace>
+   ```
+
+2. To upgrade the application:
+
+   ```bash
+   helm upgrade nxtgenhub . -n <namespace>  #OR
+   helm upgrade --install webserver . -n <namespace>
+   ```
 
 ---
 

@@ -8,7 +8,7 @@ metadata:
   #   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
   #   cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
-  # ingressClassName: nginx # traefik ingress controller preferred
+  ingressClassName: nginx # traefik ingress controller preferred
   rules:
     - host: devops.eyo-techsolutions.com
       http:
