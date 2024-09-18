@@ -1,7 +1,8 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.name }}-ingress 
+  name: {{ .Release.Name }}-ingress 
   namespace: {{ .Values.namespace }}
   # annotations:
   #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -9,14 +10,21 @@ metadata:
   #   cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   # ingressClassName: nginx # traefik ingress controller preferred
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
   rules:
-    - host: helm.eyo-techsolutions.com
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
           - path: "/"
             pathType: Prefix
             backend:
               service:
-                name: "nxtgen-webserver-svc"
+                name: {{ .Release.Name }}-svc
                 port:
-                  number: 80
+                  number: {{ .Values.service.port }}
+{{- end }}

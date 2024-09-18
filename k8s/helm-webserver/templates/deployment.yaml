@@ -1,24 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}
-  # labels:
-  #   app: frontend
+  name: {{ .Release.Name }}-deploy
+  labels:
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
   namespace: {{ .Values.namespace }}
 spec:
-  replicas: {{ .Values.replicasCount }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: nxtgen-webserver
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: nxtgen-webserver
+        app: {{ .Chart.Name }}
     spec:
       containers:
-        - name: nxtgen-webserver
-          image: eyodevops/nxtgenhub-webserver:v1
-          imagePullPolicy: Always
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 80
           resources:

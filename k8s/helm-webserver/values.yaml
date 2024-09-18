@@ -1,3 +1,21 @@
-name: nxtgen-webserver
-namespace: nxtgenhub-helm
-replicasCount: 1
+# name: nxtgen-webserver
+replicaCount: 2
+image:
+  repository: eyodevops/nxtgenhub-webserver
+  tag: "v1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  host: "helm.eyo-techsolutions.com"
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: "nxtgen-webserver-tls"
+
+namespace: "nxtgenhub-helm" # Namespace for the deployment
+
