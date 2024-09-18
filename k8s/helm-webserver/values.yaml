@@ -11,7 +11,7 @@ service:
 
 ingress:
   enabled: true
-  host: "helm.eyo-techsolutions.com"
+  host: "nxtgenhub.eyoghanatest.site"
   annotations: {}
   tls:
     enabled: false

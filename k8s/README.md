@@ -36,6 +36,6 @@ helm install prometheus \
  prometheus-community/kube-prometheus-stack \
  --namespace monitoring \
  --create-namespace \
- --set alertmanager.persistentVolume.storageClass="hostpath",server.persistentVolume.storageClass="hostpath"
+ --set alertmanager.persistentVolume.storageClass="gp2",server.persistentVolume.storageClass="gp2"
 
 helm install my-kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 62.7.0
