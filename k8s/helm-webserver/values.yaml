@@ -18,4 +18,3 @@ ingress:
     secretName: "nxtgen-webserver-tls"
 
 namespace: "nxtgenhub-helm" # Namespace for the deployment
-

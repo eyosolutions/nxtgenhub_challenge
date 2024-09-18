@@ -1,0 +1,9 @@
+dependencies:
+- name: traefik
+  repository: https://traefik.github.io/charts
+  version: 31.0.0
+- name: ingress-nginx
+  repository: https://kubernetes.github.io/ingress-nginx
+  version: 4.11.2
+digest: sha256:ef2c7230de13e1aa37e346ab36ed359eb2431d9cef827168523ec06719572ffe
+generated: "2024-09-18T08:43:29.1398688Z"

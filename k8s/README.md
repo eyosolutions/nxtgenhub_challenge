@@ -27,3 +27,15 @@ helm repo add traefik https://traefik.github.io/charts
 helm repo update
 helm install traefik traefik/traefik
 ```
+
+### Prometheus/Grafana
+
+helm repo update
+
+helm install prometheus \
+ prometheus-community/kube-prometheus-stack \
+ --namespace monitoring \
+ --create-namespace \
+ --set alertmanager.persistentVolume.storageClass="hostpath",server.persistentVolume.storageClass="hostpath"
+
+helm install my-kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 62.7.0
