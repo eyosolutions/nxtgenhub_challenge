@@ -23,12 +23,14 @@ helm install \
  --version v1.15.3 \
  --set crds.enabled=true
 
+# AWS Cert-manager
+
 ## Setting Cert-Manager to use Letsencrypt on AWS
 
 1. Create an IAM OIDC provider for your cluster
 
 ```
-eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
+eksctl utils associate-iam-oidc-provider --cluster nextgenhub_cluster --approve
 ```
 
 2. Create an IAM policy
@@ -37,7 +39,7 @@ eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
 aws iam create-policy \
      --policy-name cert-manager-acme-dns01-route53 \
      --description "This policy allows cert-manager to manage ACME DNS01 records in Route53 hosted zones. See https://cert-manager.io/docs/configuration/acme/dns01/route53" \
-     --policy-document file:///dev/stdin <<EOF
+     --policy-document file://route53.json <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -76,10 +78,80 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 eksctl create iamserviceaccount \
   --name cert-manager-acme-dns01-route53 \
   --namespace cert-manager \
-  --cluster ${CLUSTER} \
+  --cluster nextgenhub_cluster \
   --role-name cert-manager-acme-dns01-route53 \
   --attach-policy-arn arn:aws:iam::${AWS_ACCOUNT_ID}:policy/cert-manager-acme-dns01-route53 \
   --approve
+```
+
+OR
+
+```
+cat >my_service_account.yaml <<EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager-acme-dns01-route53
+  namespace: nxtgenhub-helm
+EOF
+
+kubectl apply -f my_service_account.yaml
+
+account_id=$(aws sts get-caller-identity --query "Account" --output text)
+
+oidc_provider=$(aws eks describe-cluster --name nextgenhub_cluster --region eu-north-1 --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
+
+export namespace=nxtgenhub-helm
+export service_account=cert-manager-acme-dns01-route53
+
+cat >trust-relationship.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::$account_id:oidc-provider/$oidc_provider"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "$oidc_provider:aud": "sts.amazonaws.com",
+          "$oidc_provider:sub": "system:serviceaccount:$namespace:$service_account"
+        }
+      }
+    }
+  ]
+}
+EOF
+
+aws iam create-role --role-name service_account_role --assume-role-policy-document file://trust-relationship.json --description "my-role-description"
+
+aws iam attach-role-policy --role-name service_account_role --policy-arn=arn:aws:iam::837538001765:policy/cert-manager-acme-dns01-route53
+
+kubectl annotate serviceaccount -n $namespace $service_account eks.amazonaws.com/role-arn=arn:aws:iam::837538001765:role/service_account_role
+
+
+```
+
+### Confirm policy attached to role
+
+```
+aws iam get-role --role-name service_account_role --query Role.AssumeRolePolicyDocument
+
+aws iam list-attached-role-policies --role-name service_account_role --query AttachedPolicies[].PolicyArn --output text
+
+kubectl describe serviceaccount $service_account -n $namespace
+
+```
+
+NOTE: Cleanup if error:
+
+```
+eksctl delete iamserviceaccount --region=eu-north-1 \
+--cluster nextgenhub_cluster \
+--name=cert-manager-acme-dns01-route53 \
+--namespace=cert-manager
 ```
 
 4. Grant permission for cert-manager to create ServiceAccount tokens

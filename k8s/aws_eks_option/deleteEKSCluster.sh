@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Deleting the nodegroup and cluster
 # delete nodegroup first
 

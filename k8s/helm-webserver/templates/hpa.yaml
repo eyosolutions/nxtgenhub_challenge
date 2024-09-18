@@ -2,14 +2,15 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   creationTimestamp: null
-  name: webserver-deploy
+  name: {{ .Release.Name }}-deploy
+  namespace: {{ .Values.namespace }}
 spec:
   maxReplicas: 5
   minReplicas: 1
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: webserver-deploy
+    name: {{ .Release.Name }}-deploy
   targetCPUUtilizationPercentage: 50
 status:
   currentReplicas: 0

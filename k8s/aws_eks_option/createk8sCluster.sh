@@ -19,7 +19,7 @@ DESIRED_SIZE=2
 
 EKS_TRUST_FILE="file://trust.json"
 NODE_GROUP_TRUST_FILE="file://eks-nodegroup-trust-policy.json"
-ACCOUNT_ID=12345678
+ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 
 # End of Variable Declarations
 

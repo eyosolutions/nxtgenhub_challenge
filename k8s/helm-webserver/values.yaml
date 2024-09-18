@@ -1,5 +1,5 @@
 # name: nxtgen-webserver
-replicaCount: 2
+replicaCount: 1
 image:
   repository: eyodevops/nxtgenhub-webserver
   tag: "v1"
@@ -10,11 +10,13 @@ service:
   port: 80
 
 ingress:
+  ingressClassName: nginx
   enabled: true
   host: "nxtgenhub.eyoghanatest.site"
   annotations: {}
+  clusterIssuer: "letsencrypt-prod"
   tls:
-    enabled: false
-    secretName: "nxtgen-webserver-tls"
+    enabled: true
+    secretName: "letsencrypt-prod"
 
 namespace: "nxtgenhub-helm" # Namespace for the deployment

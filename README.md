@@ -2,17 +2,18 @@
 
 ## Overview
 
-The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-end DevOps skills. It involves creating a secure, containerized web server deployed onto a Kubernetes cluster. The solution includes Kubernetes manifests, Helm charts, application monitoring, logging, and alerting, as well as an automated CI/CD pipeline.
+The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-end DevOps skills. It involves creating a secure, containerized web server deployed onto a Kubernetes cluster. The solution includes Kubernetes manifests, Helm charts, application monitoring, logging and alerting, and TLS/SSL certificate management using cert-manager as well as an automated CI/CD pipeline.
 
 ### Key Features:
 
-1. **Nginx Web Server**: A simple Nginx web server hosting a static webpage (`index.html`).
+1. **Nginx Web Server**: A simple Nginx web server hosting a static webpage (`index.html`) which displays `Hello World`.
 2. **Containerization**: The web server is containerized using Docker, and the image is hosted on Docker Hub.
 3. **Kubernetes Deployment**: The application is deployed onto Kubernetes clusters using Docker Desktop and AWS EKS.
 4. **Helm Charts**: Kubernetes manifests and Helm charts are created for simplified deployment and management.
-5. **Ingress and HTTPS**: An ingress controller is set up with TLS certificates to enable secure communication over HTTPS.
-6. **Monitoring & Logging**: Prometheus, Grafana, and Alertmanager are used for application monitoring, logging, and alerting.
-7. **CI/CD**: Jenkins or GitHub Actions and ArgoCD are used to automate the CI/CD pipeline for deployments.
+5. **Ingress/Ingress Controller and HTTPS**: An ingress controller is set up to manage ingress resourses in order to expose the application outside the cluster or on the internet.
+6. **PKI/Certificate Management**: Public Key Infrastructure/Certificate management for TLS certificates to enable secure communication over HTTPS.
+7. **Monitoring & Logging**: Prometheus, Grafana, and Alertmanager are used for application monitoring, logging, and alerting.
+8. **CI/CD**: Jenkins or GitHub Actions and ArgoCD are used to automate the CI/CD pipeline for deployments.
 
 ---
 

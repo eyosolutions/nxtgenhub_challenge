@@ -39,3 +39,13 @@ helm install prometheus \
  --set alertmanager.persistentVolume.storageClass="gp2",server.persistentVolume.storageClass="gp2"
 
 helm install my-kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 62.7.0
+
+## Autoscaling
+
+### Increase the load
+
+```
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- sh -c "while sleep 0.01; do wget -q -O- http://nxtgenhub.eyoghanatest.site; done"
+
+kubectl get hpa webserver-deploy --watch
+```
