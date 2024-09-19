@@ -296,6 +296,14 @@ helm install my-grafana grafana/grafana --version 8.5.1 \
 - Prometheus alerting rules are configured to detect common issues (e.g., high memory or CPU usage).
 - Alerts are sent via email or Slack, depending on the configured alerting system.
 
+### Load Testing Autoscaling (HPA) functionality
+
+```
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- sh -c "while sleep 0.01; do wget -q -O- http://nxtgenhub.eyoghanatest.site; done"
+
+kubectl get hpa webserver-deploy --watch
+```
+
 ---
 
 ## CI/CD Pipeline
