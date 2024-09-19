@@ -1,5 +1,9 @@
 # Nxtgenhub DevOps Challenge
 
+### Webserver built and deployed
+
+![webserver-website](images/website.PNG)
+
 ## Overview
 
 The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-end DevOps skills. It involves creating a secure, containerized web server deployed onto a Kubernetes cluster. The solution includes Kubernetes manifests, Helm charts, application monitoring, logging and alerting, and TLS/SSL certificate management using cert-manager as well as an automated CI/CD pipeline.
@@ -129,7 +133,8 @@ Create a kubernetes cluster on AWS using EKS by doing the following:
    ./deleteEKSCluster.sh
    ```
 
-**EKS Cluster Nodes**
+### EKS Cluster Nodes
+
 ![eks-cluster nodes](images/eks-nodes.png)
 
 ---
@@ -157,9 +162,6 @@ The Helm chart for the application automates the deployment of the web server, s
 3. For EKS, ensure the hostname in the ingress resources is valid and configured in AWS Route53 and the record points to the loadbalancer. Access the application using the hostname.
 
 4. For Docker Desktop, add the hostname in the ingress resource to the /etc/hosts on linux or C:\Windows\system32\drivers\etc\hosts on Windows. Access the application from the browser using the hostname.
-
-**Webpage from Webserver**
-![webserver-website](images/website.PNG)
 
 ### Using Helm Chart
 
@@ -238,7 +240,8 @@ Cert-manager is used in conjunction with Letsencrypt certificate issuer to manag
    --set crds.enabled=true
    ```
 
-**Cert-manager Installed**
+### Cert-manager Installed
+
 ![cert-manager-resources](images/cert-manager.PNG)
 
 2. Install Letsencrypt Cluster-Issuer for staging. This is for development and testing purposes. The Cluster issuer use one of `http01` or `dns01` as a solver challenge.
@@ -261,7 +264,8 @@ Cert-manager is used in conjunction with Letsencrypt certificate issuer to manag
 
 5. Ensure the annotation of the ingress resource points to the cluster issuer
 
-**TLS Certificate Issued**
+### TLS Certificate Issued
+
 ![tls_certificate](images/certificate_nxtgenhub.PNG)
 
 ---
@@ -320,10 +324,11 @@ Monitoring is required to get metrics about the cluster and the applications run
    kubectl apply -f custom_alert_rules.yaml -n monitoring
    ```
 
-   **Alert Manager UI**
-   ![alertmanager-ui](images/alert-manager.PNG)
+### Alert Manager UI
 
-   For more custom alert rules, refer to https://samber.github.io/awesome-prometheus-alerts/rules#kubernetes
+![alertmanager-ui](images/alert-manager.PNG)
+
+For more custom alert rules, refer to https://samber.github.io/awesome-prometheus-alerts/rules#kubernetes
 
 2. Test to see alertmanager is working by running as an example the below image with wrong tag; and monitor in alertmanager UI.
    ```
@@ -334,7 +339,8 @@ Monitoring is required to get metrics about the cluster and the applications run
 
 Prometheus can be configured to scrape more metrics from specific applications by updating the the config.yaml.
 
-**Prometheus UI**
+### Prometheus UI
+
 ![prometheus-ui](images/prometheus-ui.PNG)
 
 ### Configuring Grafana
@@ -351,7 +357,8 @@ kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonp
 
 3. Go to dashboard and select `prometheus` as a data source and test. Import dashboards by using ID 11455 or other IDs from grafana library at https://grafana.com/grafana/dashboards/
 
-**Grafana Home**
+### Grafana Home
+
 ![grafana-home](images/grafana-home.PNG)
 
 ### Configuring Prometheus to get metrics from the webserver and ingress-nginx controller
@@ -375,7 +382,8 @@ kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never --
 kubectl get hpa webserver-deploy --watch
 ```
 
-**Autoscaling with HPA Demo**
+### Autoscaling with HPA Demo
+
 ![Autoscaling_hpa](images/hpa-monitor.PNG)
 
 ---
