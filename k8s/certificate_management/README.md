@@ -29,7 +29,9 @@ helm install \
 
 # Cert-manager Setup on AWS
 
-## Setting Cert-Manager to use Letsencrypt on AWS using dns01 solver challenge
+## Setting Cert-Manager to use Letsencrypt on AWS using `dns01` solver challenge
+
+**NOTE**: This method is still in progress and requires further investigations:
 
 1. Create an IAM OIDC provider for your cluster
 

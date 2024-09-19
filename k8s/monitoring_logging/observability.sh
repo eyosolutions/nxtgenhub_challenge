@@ -15,8 +15,8 @@ helm upgrade --install prometheus-stack prometheus-community/kube-prometheus-sta
  --create-namespace
 
 # Graafana - if needed alone
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm upgrade --install my-grafana grafana/grafana --version 8.5.1 \
- --namespace grafana \
- --create-namespace
+# helm repo add grafana https://grafana.github.io/helm-charts
+# helm repo update
+# helm upgrade --install my-grafana grafana/grafana --version 8.5.1 \
+#  --namespace grafana \
+#  --create-namespace

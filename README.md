@@ -129,6 +129,8 @@ Create a kubernetes cluster on AWS using EKS by doing the following:
    ./deleteEKSCluster.sh
    ```
 
+   ![eks-cluster nodes](imahes/eks-nodes.png)
+
 ---
 
 ## Helm Chart/ Manifests
@@ -154,6 +156,8 @@ The Helm chart for the application automates the deployment of the web server, s
 3. For EKS, ensure the hostname in the ingress resources is valid and configured in AWS Route53 and the record points to the loadbalancer. Access the application using the hostname.
 
 4. For Docker Desktop, add the hostname in the ingress resource to the /etc/hosts on linux or C:\Windows\system32\drivers\etc\hosts on Windows. Access the application from the browser using the hostname.
+
+![webserver-website](images/website.PNG)
 
 ### Using Helm Chart
 
@@ -232,25 +236,29 @@ Cert-manager is used in conjunction with Letsencrypt certificate issuer to manag
    --set crds.enabled=true
    ```
 
+   ![cert-manager-resources](images/cert-manager.PNG)
+
 2. Install Letsencrypt Cluster-Issuer for staging. This is for development and testing purposes. The Cluster issuer use one of `http01` or `dns01` as a solver challenge.
 
-```bash
-cd nxtgenhub_challenge/k8s/certificate_management/using_http01/
-kubectl apply -f staging-issuer.yaml -n <same-namespace-as-webserver>
-kubectl get certificate -n <same-namespace-as-webserver>
-```
+   ```bash
+   cd nxtgenhub_challenge/k8s/certificate_management/using_http01/
+   kubectl apply -f staging-issuer.yaml -n <same-namespace-as-webserver>
+   kubectl get certificate -n <same-namespace-as-webserver>
+   ```
 
 3. Once certificate shows ready, it can be confirmed by accessing application on the browser. Else, use `kubectl describe certificate` to troubleshoot to know the cause of issue and resolve it.
 
 4. Install Letsencrypt Cluster-Issuer for production once everything is fine.
 
-```bash
-cd nxtgenhub_challenge/k8s/certificate_management/using_http01/
-kubectl apply -f prod-issuer.yaml -n <same-namespace-as-webserver>
-kubectl get certificate -n <same-namespace-as-webserver>
-```
+   ```bash
+   cd nxtgenhub_challenge/k8s/certificate_management/using_http01/
+   kubectl apply -f prod-issuer.yaml -n <same-namespace-as-webserver>
+   kubectl get certificate -n <same-namespace-as-webserver>
+   ```
 
 5. Ensure the annotation of the ingress resource points to the cluster issuer
+
+![tls_certificate](images/certificate_nxtgenhub.PNG)
 
 ---
 
@@ -266,27 +274,28 @@ Monitoring is required to get metrics about the cluster and the applications run
 
 - Install `metric-server` to get cluster core metrics:
 
-```
-helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-helm upgrade --install metrics-server metrics-server/metrics-server \
- --namespace monitoring \
- --create-namespace
-```
+  ```
+  helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+  helm upgrade --install metrics-server metrics-server/metrics-server \
+  --namespace monitoring \
+  --create-namespace
+  ```
 
 - Install `prometheus, alertmanager and grafana stack` for metrics scrapping, visualizations and alerting.
 
-```
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack -f custom_values.yaml \
- --version 62.7.0 \
- --namespace monitoring \
- --create-namespace
-```
+  ```
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm repo update
+  helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack -f custom_values.yaml \
+  --version 62.7.0 \
+  --namespace monitoring \
+  --create-namespace
+  ```
 
 **Reference**:
 
 1. https://medium.com/@muppedaanvesh/a-hands-on-guide-setting-up-prometheus-and-alertmanager-in-kubernetes-with-custom-alerts-%EF%B8%8F-f9c6d37b27ca
+
 2. https://medium.com/@muppedaanvesh/a-hands-on-guide-to-kubernetes-monitoring-using-prometheus-grafana-%EF%B8%8F-b0e00b1ae039
 
 **NOTE**: Access can be achieved by two ways:
@@ -307,6 +316,8 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
    kubectl apply -f custom_alert_rules.yaml -n monitoring
    ```
 
+   ![alertmanager-ui](images/alert-manager.PNG)
+
    For more custom alert rules, refer to https://samber.github.io/awesome-prometheus-alerts/rules#kubernetes
 
 2. Test to see alertmanager is working by running as an example the below image with wrong tag; and monitor in alertmanager UI.
@@ -316,9 +327,13 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
 
 ### Configuring Prometheus
 
+Prometheus can be configured to scrape more metrics from specific applications by updating the the config.yaml.
+
+![prometheus-ui](images/prometheus-ui.PNG)
+
 ### Configuring Grafana
 
-1. Access from the browser using
+1. Access from the browser using as described above.
 
 2. Get login details. Get Username and Password from running the below two commands.
 
@@ -330,18 +345,20 @@ kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonp
 
 3. Go to dashboard and select `prometheus` as a data source and test. Import dashboards by using ID 11455 or other IDs from grafana library at https://grafana.com/grafana/dashboards/
 
-### Configuring Prometheus to get metrics from the webserver
+![grafana-home](grafana-home.PNG)
+
+### Configuring Prometheus to get metrics from the webserver and ingress-nginx controller
 
 ```
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install my-prometheus-nginx-exporter prometheus-community/prometheus-nginx-exporter --version 0.2.2
+helm install prometheus-nginx-exporter prometheus-community/prometheus-nginx-exporter --version 0.2.2
 ```
 
 ### Alerts:
 
 - Prometheus alerting rules are configured to detect common issues (e.g., high memory or CPU usage).
-- Alerts are sent via email or Slack, depending on the configured alerting system.
+- Alerts are sent via email or Slack, depending on the configured alerting receiver system.
 
 ### Load Testing Autoscaling (HPA) functionality
 
@@ -350,6 +367,8 @@ kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never --
 
 kubectl get hpa webserver-deploy --watch
 ```
+
+![Autoscaling_hpa](images/hpa-monitor.PNG)
 
 ---
 
