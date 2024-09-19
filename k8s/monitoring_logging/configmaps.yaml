@@ -54,5 +54,5 @@ data:
     receivers:
     - name: 'slack-notifications'
       slack_configs:
-      - api_url: 'https://hooks.slack.com/services/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'
-        channel: '#testing'
+      - api_url: 'slack_webhook_url'
+        channel: '#channel'
