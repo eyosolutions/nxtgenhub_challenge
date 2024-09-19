@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   {{- if .Values.ingress.tls.enabled }}
   annotations:
-    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     # nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
   {{- end }}

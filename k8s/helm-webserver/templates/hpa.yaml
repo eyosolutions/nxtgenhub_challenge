@@ -11,7 +11,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ .Release.Name }}-deploy
-  targetCPUUtilizationPercentage: 50
+  targetCPUUtilizationPercentage: 20
 status:
   currentReplicas: 0
   desiredReplicas: 0

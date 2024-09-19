@@ -273,22 +273,69 @@ helm upgrade --install metrics-server metrics-server/metrics-server \
  --create-namespace
 ```
 
-- Install `prometheus and grafana` for metrics scrapping and visualizations
+- Install `prometheus, alertmanager and grafana stack` for metrics scrapping, visualizations and alerting.
 
 ```
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install my-kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 62.7.0 \
+helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack -f custom_values.yaml \
+ --version 62.7.0 \
  --namespace monitoring \
  --create-namespace
 ```
 
+**Reference**:
+
+1. https://medium.com/@muppedaanvesh/a-hands-on-guide-setting-up-prometheus-and-alertmanager-in-kubernetes-with-custom-alerts-%EF%B8%8F-f9c6d37b27ca
+2. https://medium.com/@muppedaanvesh/a-hands-on-guide-to-kubernetes-monitoring-using-prometheus-grafana-%EF%B8%8F-b0e00b1ae039
+
+**NOTE**: Access can be achieved by two ways:
+
+1. Get the external IP of any of the worker nodes. Access prometheus, alertmanager and grafana from the browser using
+
+   ```
+   http://<node_external_ip>:<nodeport_for_each>
+   ```
+
+2. Use Lens App to port-forward or `kubectl port-forward` command to access the prometheus, alertmanager and grafana in the browser.
+
+### Configuring Alertmanager
+
+1. Create a custom alert called `custom_alert_rules.yaml` or use the one located at `nxtgenhub_challenge/k8s/monitoring_logging/` and deploy into the cluster.
+
+   ```
+   kubectl apply -f custom_alert_rules.yaml -n monitoring
+   ```
+
+   For more custom alert rules, refer to https://samber.github.io/awesome-prometheus-alerts/rules#kubernetes
+
+2. Test to see alertmanager is working by running as an example the below image with wrong tag; and monitor in alertmanager UI.
+   ```
+   kubectl run nginx-pod --image=nginx:lates3
+   ```
+
+### Configuring Prometheus
+
+### Configuring Grafana
+
+1. Access from the browser using
+
+2. Get login details. Get Username and Password from running the below two commands.
+
 ```
-helm repo add grafana https://grafana.github.io/helm-charts
+kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-user}" | base64 --decode ; echo
+
+kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+3. Go to dashboard and select `prometheus` as a data source and test. Import dashboards by using ID 11455 or other IDs from grafana library at https://grafana.com/grafana/dashboards/
+
+### Configuring Prometheus to get metrics from the webserver
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install my-grafana grafana/grafana --version 8.5.1 \
- --namespace grafana \
- --create-namespace
+helm install my-prometheus-nginx-exporter prometheus-community/prometheus-nginx-exporter --version 0.2.2
 ```
 
 ### Alerts:
@@ -299,7 +346,7 @@ helm install my-grafana grafana/grafana --version 8.5.1 \
 ### Load Testing Autoscaling (HPA) functionality
 
 ```
-kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- sh -c "while sleep 0.01; do wget -q -O- http://nxtgenhub.eyoghanatest.site; done"
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- sh -c "while sleep 0.01; do wget -q -O- http://<webserver_SVC_ip>; done"
 
 kubectl get hpa webserver-deploy --watch
 ```
