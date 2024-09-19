@@ -105,12 +105,6 @@ Create a kubernetes cluster by doing the following:
 - Install Docker Desktop following the instructions on their official website for your local machine.
 - Open Docker Desktop, go to settings, click and enable kubernetes, and click on "Apply & restart".
 
-<!-- 1. Create Kubernetes manifests (`namespace.yaml`, `deployment.yaml`, `service.yaml`, `ingress.yaml`, `ingress-controller.yaml`).
-2. Apply the manifests:
-   ```bash
-   kubectl apply -f k8s-manifests/
-   ``` -->
-
 ### Deployment on EKS:
 
 Create a kubernetes cluster on AWS using EKS by doing the following:
@@ -135,19 +129,11 @@ Create a kubernetes cluster on AWS using EKS by doing the following:
    ./deleteEKSCluster.sh
    ```
 
-### Ingress with HTTPS:
-
-- Use **cert-manager** to automatically manage HTTPS certificates:
-  ```bash
-  kubectl apply -f cert-manager.yaml
-  ```
-- Ensure your Ingress resource is configured for HTTPS using the certificate provided by cert-manager.
-
 ---
 
 ## Helm Chart/ Manifests
 
-The Helm chart for the application automates the deployment of the web server, services, and ingress. The Ingress controller is added as a Helm dependency. There is also a separate `manifests` directoy for the deployment of resources using `kubectl`.
+The Helm chart for the application automates the deployment of the web server, services, and ingress. The Ingress controller is added as a Helm dependency. There is also a separate `manifests` directory for the deployment of resources using `kubectl`.
 
 ### Using kubectl
 
@@ -188,7 +174,89 @@ The Helm chart for the application automates the deployment of the web server, s
 
 ---
 
+## Ingress/ Ingress Controller
+
+The ingress resource and ingress controller installation are part of the manifests or the helm chart to manage single installation of the application. Ingress-nginx controller is used but traefik can also be used. The TLS termination is done on the ingress resource by the certificate management resources.
+
+In EKS, the ingress triggers the provisioning of an internet facing external loadbalancer to direct traffic to the application.
+Ingress-nginx can be installed separately when using the manifests/kubectl option, either by `kubectl` or `helm`.
+
+NOTE: Below assumes ingress controller is `NOT` installed as a dependency of the application helm chart.
+
+### Ingress-nginx Ingress Controller
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/cloud/deploy.yaml
+
+#OR Using Helm
+
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm upgrade --install ingress-nginx ingress-nginx \
+--repo https://kubernetes.github.io/ingress-nginx \
+--namespace ingress-nginx --create-namespace
+```
+
+### Traefik Ingress Controller
+
+```
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+helm install traefik traefik/traefik
+```
+
+---
+
+## Certificate/TLS Management
+
+Cert-manager is used in conjunction with Letsencrypt certificate issuer to manage the creation, termination and renewal of certificates in the cluster for the applications or cluster resources.
+
+### Install cert-manager and Cluster Issuer
+
+1. Install cert-manager
+   **Using kubectl**
+
+   ```
+   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
+   ```
+
+   **Using Helm**
+
+   ```
+   helm repo add jetstack https://charts.jetstack.io --force-update
+   helm install \
+   cert-manager jetstack/cert-manager \
+   --namespace cert-manager \
+   --create-namespace \
+   --version v1.15.3 \
+   --set crds.enabled=true
+   ```
+
+2. Install Letsencrypt Cluster-Issuer for staging. This is for development and testing purposes. The Cluster issuer use one of `http01` or `dns01` as a solver challenge.
+
+```bash
+cd nxtgenhub_challenge/k8s/certificate_management/using_http01/
+kubectl apply -f staging-issuer.yaml -n <same-namespace-as-webserver>
+kubectl get certificate -n <same-namespace-as-webserver>
+```
+
+3. Once certificate shows ready, it can be confirmed by accessing application on the browser. Else, use `kubectl describe certificate` to troubleshoot to know the cause of issue and resolve it.
+
+4. Install Letsencrypt Cluster-Issuer for production once everything is fine.
+
+```bash
+cd nxtgenhub_challenge/k8s/certificate_management/using_http01/
+kubectl apply -f prod-issuer.yaml -n <same-namespace-as-webserver>
+kubectl get certificate -n <same-namespace-as-webserver>
+```
+
+5. Ensure the annotation of the ingress resource points to the cluster issuer
+
+---
+
 ## Monitoring, Logging, and Alerting
+
+Monitoring is required to get metrics about the cluster and the applications running in the clusters. These metrics can be used to trigger pod autoscaling and other needs.
 
 ### Monitoring Setup:
 
@@ -196,10 +264,31 @@ The Helm chart for the application automates the deployment of the web server, s
 2. **Grafana** provides visualization dashboards for these metrics.
 3. **Alertmanager** sends alerts based on defined Prometheus rules.
 
-To deploy monitoring:
+- Install `metric-server` to get cluster core metrics:
 
-```bash
-kubectl apply -f monitoring/
+```
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm upgrade --install metrics-server metrics-server/metrics-server \
+ --namespace monitoring \
+ --create-namespace
+```
+
+- Install `prometheus and grafana` for metrics scrapping and visualizations
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install my-kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 62.7.0 \
+ --namespace monitoring \
+ --create-namespace
+```
+
+```
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm install my-grafana grafana/grafana --version 8.5.1 \
+ --namespace grafana \
+ --create-namespace
 ```
 
 ### Alerts:
@@ -216,8 +305,9 @@ kubectl apply -f monitoring/
 - The CI pipeline builds the Docker image and pushes it to Docker Hub.
 - The CD pipeline is triggered using **ArgoCD** to deploy the latest version to the Kubernetes cluster.
 
-1. **Jenkins**: A Jenkins pipeline (`Jenkinsfile`) automates the build and push process.
-2. **GitHub Actions**: Alternatively, use GitHub Actions (`.github/workflows/ci.yml`) to perform the same tasks.
+1. **Jenkins**: A Jenkins pipeline (`Jenkinsfile`) can be used for the CI to automate the docker build and push process.
+2. **GitHub Actions**: Alternatively, GitHub Actions (`.github/workflows/ci.yml`) can be used to perform the same tasks.
+3. **ArgoCD**: ArgoCD can be used to continously monitor changes in the manifests/helm chart repo and deploy the application onto the cluster.
 
 ---
 

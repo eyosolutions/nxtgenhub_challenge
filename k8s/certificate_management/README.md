@@ -1,10 +1,10 @@
-# Install Cert-Manager
+# Install Cert-Manager and Issuers
+
+## Using kubectl
 
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
 
-# Modify Ingress Resource
-
-Modify ingress resource to have annotations as this
+**Modify Ingress Resource**: Modify ingress resource to have annotations as this
 
 <!-- For testing -->
 
@@ -12,6 +12,8 @@ Modify ingress resource to have annotations as this
 #cert-manager.io/cluster-issuer: "letsencrypt-staging"
 
 <!-- For production -->
+
+#cert-manager.io/cluster-issuer: "letsencrypt-production"
 
 ## Using helm
 
@@ -23,9 +25,11 @@ helm install \
  --version v1.15.3 \
  --set crds.enabled=true
 
-# AWS Cert-manager
+---
 
-## Setting Cert-Manager to use Letsencrypt on AWS
+# Cert-manager Setup on AWS
+
+## Setting Cert-Manager to use Letsencrypt on AWS using dns01 solver challenge
 
 1. Create an IAM OIDC provider for your cluster
 
