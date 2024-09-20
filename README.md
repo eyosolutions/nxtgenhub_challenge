@@ -14,7 +14,7 @@ The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-e
 2. **Containerization**: The web server is containerized using Docker, and the image is hosted on Docker Hub.
 3. **Kubernetes Deployment**: The application is deployed onto Kubernetes clusters using Docker Desktop and AWS EKS.
 4. **Helm Charts**: Kubernetes manifests and Helm charts are created for simplified deployment and management.
-5. **Ingress/Ingress Controller and HTTPS**: An ingress controller is set up to manage ingress resourses in order to expose the application outside the cluster or on the internet.
+5. **Ingress/Ingress Controller and HTTPS**: An ingress controller is set up to manage ingress resources in order to expose the application outside the cluster or on the internet.
 6. **PKI/Certificate Management**: Public Key Infrastructure/Certificate management for TLS certificates to enable secure communication over HTTPS.
 7. **Monitoring & Logging**: Prometheus, Grafana, and Alertmanager are used for application monitoring, logging, and alerting.
 8. **CI/CD**: Jenkins or GitHub Actions and ArgoCD are used to automate the CI/CD pipeline for deployments.
@@ -26,9 +26,9 @@ The **Nxtgenhub DevOps Challenge** is a project designed to demonstrate end-to-e
 - [Setup Instructions](#setup-instructions)
 - [Docker](#docker)
 - [Kubernetes Setup](#kubernetes-setup)
-- [Helm Chart](#helm-chart)
-- [Ingress/Ingress Controller](#ingress)
-- [Certificates Management](#certificates-tls)
+- [Helm Chart and Manifests](#helm-chart)
+- [Ingress and Ingress Controller](#ingress)
+- [Certificates/TLS Management](#certificates-tls)
 - [Monitoring, Logging, and Alerting](#monitoring-logging-and-alerting)
 - [CI/CD Pipeline](#ci-cd-pipeline)
 - [Contributing](#contributing)
@@ -139,7 +139,7 @@ Create a kubernetes cluster on AWS using EKS by doing the following:
 
 ---
 
-## Helm Chart/ Manifests
+## Helm Chart and Manifests
 
 The Helm chart for the application automates the deployment of the web server, services, and ingress. The Ingress controller is added as a Helm dependency. There is also a separate `manifests` directory for the deployment of resources using `kubectl`.
 
@@ -182,7 +182,7 @@ The Helm chart for the application automates the deployment of the web server, s
 
 ---
 
-## Ingress/ Ingress Controller
+## Ingress and Ingress Controller
 
 The ingress resource and ingress controller installation are part of the manifests or the helm chart to manage single installation of the application. Ingress-nginx controller is used but traefik can also be used. The TLS termination is done on the ingress resource by the certificate management resources.
 
@@ -215,7 +215,7 @@ helm install traefik traefik/traefik
 
 ---
 
-## Certificate/TLS Management
+## Certificates/TLS Management
 
 Cert-manager is used in conjunction with Letsencrypt certificate issuer to manage the creation, termination and renewal of certificates in the cluster for the applications or cluster resources.
 
