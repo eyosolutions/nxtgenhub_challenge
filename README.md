@@ -369,6 +369,10 @@ helm repo update
 helm install prometheus-nginx-exporter prometheus-community/prometheus-nginx-exporter --version 0.2.2
 ```
 
+### Grafana Dashboard for the Webserver
+
+![webserver-dashboard during Load Testing](images/grafana_webserver.PNG)
+
 ### Alerts:
 
 - Prometheus alerting rules are configured to detect common issues (e.g., high memory or CPU usage).
