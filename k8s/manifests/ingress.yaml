@@ -1,12 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nxtgen-webserver-ingress
-  namespace: nxtgenhub
-  # annotations:
-  #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  #   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-  #   cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  name: netflix-ingress
+  namespace: nxtgenhub-helm
+  annotations:
+    #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    #   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   ingressClassName: nginx # traefik ingress controller preferred
   rules:
